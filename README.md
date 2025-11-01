@@ -1,12 +1,12 @@
 <div align="center">
   <img src="assets/witch-temple-logo.webp" alt="Witch temple finder logo" style="width:25%; image-rendering: pixelated;" onerror="this.style.display='none';">
-  <h1>Witch temple finder</h1>
+  <h1>[WIP] Witch temple finder</h1>
 </div>
 
 ## C++ console application to search for Minecraft Java Edition 1.4.2 - 1.6.2 seeds with Temples partially in swamp biomes
 
-<!-- [![en](https://img.shields.io/badge/lang-en-green.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.md)
-[![ru](https://img.shields.io/badge/lang-ru-red.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.ru.md)
+[![en](https://img.shields.io/badge/lang-en-green.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.md)
+<!-- [![ru](https://img.shields.io/badge/lang-ru-red.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.ru.md)
 DeepWiki badge here: https://deepwiki.ryoppippi.com/ -->
 
 ## Introduction
@@ -76,6 +76,8 @@ Now all I had to do is to replicate logic that game uses to select chunks for te
 
 *Check center of the chunk biome to get temple type* -> *given it's type get it's bounding box size* -> *compute how many blocks are inside swamp*
 
+Thanks to [Bjoel](https://github.com/TheBjoel2) for [C++ Java random implementation](https://github.com/TheBjoel2/Slime-Chunk-Finder/blob/master/JavaRandom.cpp).
+
 And thats basically it! Some optimizations and multithreading later - results are down below.
 
 > [!TIP]
@@ -95,7 +97,11 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
 | Seed | Structure type | X | Z | Swamp blocks | % of max `21 * 21 - 1` | Spawning spaces
 |-|-|-|-|-|-|-
 | 28257 | DesertPyramid | 22784 | 16752 | 401 | 91.14% | 2005
-| 1306145184061456995 | DesertPyramid | -29981072 | -8433488 | 362 | 82.27% | 1810
+| 1306145184061456995 | DesertPyramid | 15310960 | -29966672 | 365 | 82.95% | 1825
+
+<p align="center">
+  <img src="assets/desert-pyramid.webp" alt="Desert pyramid with witches" style="width:75%;" onerror="this.style.display='none';">
+</p>
 
 ### Best jungle temples (single temple search)
 
@@ -106,8 +112,16 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
 | 418 | JungleTemple | 8224 | 33312 | 161 | 89.94% | 483
 | 135 | JungleTemple | 11328 | -34672 | 160 | 89.38% | 480
 
+<p align="center">
+  <img src="assets/jungle-temple.webp" alt="Jungle temple with witches" style="width:75%;" onerror="this.style.display='none';">
+</p>
+
 > [!TIP]
 > If you input seed 0 into seed field Minecraft would actually generate random one. To generate actual seed 0 world, as Panda explained his video "*[Seeds & Generation #01: Ways to Enter a Seed](https://youtu.be/OLS7CCgNcuY)*" you would need to enter something like `PDFYFCD` as suggested by [seedinfo](https://panda4994.github.io/seedinfo/seedinfo.html#0) tool.
+
+## Farming possibilities
+
+I am currently working on a couple of designs: "*[Desert Temple Witch Farm and Extended Shifting Floor | Minecraft ~1.4.2 - 1.6.2](https://youtu.be/Fetwu5-A980?list=PLI-RNUGw-AeSV09QsBt6lBs1ORZgm889b)*".
 
 ## Setup with [VSCode](https://code.visualstudio.com/)
 

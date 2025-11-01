@@ -1,10 +1,16 @@
 # IDE
 .vscode/*
 !.vscode/extensions.json
+!.vscode/launch.json
 
 # Compiled code
 build
 
+# Logs
+location_finder.log
+quad_temple_finder.log
+seed_finder.log
+
 # Misc
-last2.md
 last.md
+last2.md

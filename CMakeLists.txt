@@ -9,13 +9,18 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 add_subdirectory(external/cubiomes)
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/cubiomes
+set(SEEDFINDER_SOURCES
+    src/main.cpp
+    src/seed_finder.cpp
+    src/quad_temple_finder.cpp
+    src/location_finder.cpp
 )
 
-add_executable(seedfinder
-    src/main.cpp
+add_executable(seedfinder ${SEEDFINDER_SOURCES})
+
+target_include_directories(seedfinder PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/cubiomes
 )
 
 if (TARGET cubiomes_static)
