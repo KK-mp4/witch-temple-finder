@@ -1,0 +1,10 @@
+# IDE
+.vscode/*
+!.vscode/extensions.json
+
+# Compiled code
+build
+
+# Misc
+last2.md
+last.md

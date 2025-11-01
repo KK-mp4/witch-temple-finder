@@ -1,0 +1,13 @@
+
+{
+  "recommendations": [
+    // "asvetliakov.vscode-neovim",
+    "DavidAnson.vscode-markdownlint",
+    "michelemelluso.gitignore",
+    "ms-vscode.cpptools-extension-pack",
+    "PKief.material-icon-theme",
+    "roonie007.hide-files",
+    "shardulm94.trailing-spaces",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}
