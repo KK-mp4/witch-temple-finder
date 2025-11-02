@@ -7,10 +7,9 @@
 build
 
 # Logs
-location_finder.log
-quad_temple_finder.log
-seed_finder.log
+logs/*
+!logs/.gitkeep
 
 # Misc
-last.md
-last2.md
+drafts/*
+!drafts/.gitkeep

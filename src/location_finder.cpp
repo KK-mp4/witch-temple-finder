@@ -85,9 +85,9 @@ int run_location_finder(uint64_t seed = 0)
 
     const unsigned int numThreads = std::max(1u, std::thread::hardware_concurrency());
 
-    std::ofstream log("location_finder.log", std::ios::trunc);
+    std::ofstream log("logs/location_finder.log", std::ios::trunc);
     if (!log)
-        fprintf(stderr, "Failed to open log file 'location_finder.log'\n");
+        fprintf(stderr, "Failed to open log file 'logs/location_finder.log'\n");
     else
         log << "seed,structure_type,startX,startZ,swamp_blocks\n";
 

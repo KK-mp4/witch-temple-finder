@@ -1,12 +1,32 @@
 # Development Guide
 
-Simply [fork the repository](#1-forking-the-repository) and make a [pull requst](#2-making-a-pull-request-pr) when you're done. You are free to add README translations to other languages too.
+Simply [fork the repository](#1-forking-the-repository) and make a [pull request](#2-making-a-pull-request-pr) when you're done. You are free to add README translations to other languages too. If you found some cool seeds also add results to `README.md`.
 
-**TODO:**
+## 0. TODO
 
-- Optimization, with current implementation there is no way to scan even 1% of all seeds
-- Scan through more seeds and add best results to `README.md`
-- CUDA rewrite?
+### 0.1. Sister (shadow) seeds
+
+Minecraft actually uses only lower 48 bits of the seed for structure generation and full 64 bits for biomes. This means It is actually more effective to first find lower 48 bits where you get quad temple and later search through remaining sister seeds. I did not implement this logic yet, so contributions are welcome.
+
+```math
+\text{(base seeds)}\quad 2^{48} = 281474976710656 \\
+\text{(sister seeds)}\quad 2^{16} = 65536
+```
+
+### 0.2. Optimization
+
+I'm not using [cubiomes](https://github.com/Cubitect/cubiomes) library to it's full potential. As their `README.md` states it is more efficient to get biome range instead of block by block:
+
+```cpp
+    int *biomeIds = allocCache(&g, r);
+    genBiomes(&g, biomeIds, r);
+```
+
+You can also do first call with low resolution to +- tell % of swamp, and then if % is high do a high resolution pass.
+
+### 0.3. Witch hut and jungle temple rotation
+
+Since they are asymmetrical, their bounding box can be rotated. Currently by code does not implement those rotations and you make actually get false positives (see issue#1).
 
 ## 1. Forking the repository
 
@@ -108,7 +128,13 @@ Now click "*Left Control + Shift + P*" to open quick actions tab and search for 
     ├───.vscode - VSCode settings
     ├───assets - images for README
     ├───build - compiled program
+    ├───drafts - git-ignored folder for random scaps
     ├───external - cubiomes source code
     ├───include - helper functions like Java random
+    ├───logs - finders output
     └───src - main seed finder source code
+            location_finder.cpp - finds best temples in one seed
+            main.cpp - entry point
+            quad_temple_finder.cpp - finds seeds with temple clusters
+            seed_finder.cpp - finds seeds with best temples
 ```

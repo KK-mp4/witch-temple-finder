@@ -6,8 +6,8 @@
 ## C++ console application to search for Minecraft Java Edition 1.4.2 - 1.6.2 seeds with Temples partially in swamp biomes
 
 [![en](https://img.shields.io/badge/lang-en-green.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.md)
-<!-- [![ru](https://img.shields.io/badge/lang-ru-red.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.ru.md)
-DeepWiki badge here: https://deepwiki.ryoppippi.com/ -->
+[![ru](https://img.shields.io/badge/lang-ru-red.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.ru.md)
+<!-- DeepWiki badge here: https://deepwiki.ryoppippi.com/ -->
 
 ## Introduction
 
@@ -85,18 +85,103 @@ And thats basically it! Some optimizations and multithreading later - results ar
 
 ## Results
 
-Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In 1.6.4 it was silently fixed.
+Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In 1.6.4 it was silently fixed. The seed finder needs further optimizations, I only ran for ~100k seeds in each category and only scanned `65536x65536` area around `0, 0`.
 
 ### Best multi-temples (similar to quad witch search)
 
-| Seed | Structure type | X | Z | Swamp blocks | % of max `4 * (21 * 21 - 1)` | Spawning spaces
-|-|-|-|-|-|-|-
+<table>
+  <thead>
+    <tr>
+      <th>Seed</th>
+      <th>Structure type</th>
+      <th>X</th>
+      <th>Z</th>
+      <th>Swamp blocks</th>
+      <th>Total swamp blocks</th>
+      <th>% of max <code>4 * (21 * 21 - 1)</code></th>
+      <th>Spawning spaces</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2">151</td>
+      <td>DesertPyramid</td>
+      <td>-59536</td>
+      <td>36096</td>
+      <td>118</td>
+      <td rowspan="2">176</td>
+      <td rowspan="2">10%</td>
+      <td rowspan="2">706</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>-59392</td>
+      <td>36112</td>
+      <td>58</td>
+    </tr>
+    <tr>
+      <td rowspan="2">84</td>
+      <td>DesertPyramid</td>
+      <td>39792</td>
+      <td>-16832</td>
+      <td>81</td>
+      <td rowspan="2">144</td>
+      <td rowspan="2">8.18%</td>
+      <td rowspan="2">531</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>39936</td>
+      <td>-16832</td>
+      <td>63</td>
+    </tr>
+    <tr>
+      <td rowspan="2">541</td>
+      <td>DesertPyramid</td>
+      <td>-32912</td>
+      <td>48208</td>
+      <td>86</td>
+      <td rowspan="2">139</td>
+      <td rowspan="2">7.90%</td>
+      <td rowspan="2">536</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>-32768</td>
+      <td>48208</td>
+      <td>53</td>
+    </tr>
+    <tr>
+      <td rowspan="2">1262</td>
+      <td>DesertPyramid</td>
+      <td>-56128</td>
+      <td>-11408</td>
+      <td>58</td>
+      <td rowspan="2">121</td>
+      <td rowspan="2">6.87%</td>
+      <td rowspan="2">416</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>-56112</td>
+      <td>-11264</td>
+      <td>63</td>
+    </tr>
+  </tbody>
+</table>
+
+<p align="center">
+  <img src="assets/double-temple.webp" alt="Desert pyramid next to witch hut" style="width:75%;" onerror="this.style.display='none';">
+</p>
 
 ### Best overall (single temple search)
 
 | Seed | Structure type | X | Z | Swamp blocks | % of max `21 * 21 - 1` | Spawning spaces
 |-|-|-|-|-|-|-
 | 28257 | DesertPyramid | 22784 | 16752 | 401 | 91.14% | 2005
+| 42162 | DesertPyramid | 49264 | -21248 | 393 | 89.32% | 1965
+| 38711 | DesertPyramid | -29984 | -16752 | 381 | 86.59% | 1905
+| 38513 | DesertPyramid | 46144 | 21616 | 375 | 85.23% | 1875
 | 1306145184061456995 | DesertPyramid | 15310960 | -29966672 | 365 | 82.95% | 1825
 
 <p align="center">
@@ -104,6 +189,8 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
 </p>
 
 ### Best jungle temples (single temple search)
+
+Note: this list may contain false positives, because of issue #1.
 
 | Seed | Structure type | X | Z | Swamp blocks | % of max `12 * 15 - 1` | Spawning spaces
 |-|-|-|-|-|-|-
@@ -116,12 +203,39 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
   <img src="assets/jungle-temple.webp" alt="Jungle temple with witches" style="width:75%;" onerror="this.style.display='none';">
 </p>
 
+### Worst witch hut
+
+Since game checks center of the chunk to determine type of temple and witch hut doesn't extend far enough to cover that center piece, it is actually possible to find a witch hut that is fully outside of desert, so I took a small side quest to find such witch hut.
+
+| Seed | Structure type | X | Z | Swamp blocks | % of max `0` | Spawning spaces
+|-|-|-|-|-|-|-
+| 903 | WitchHut | -65536 | 22384 | 0 | 100% | 0
+
+The redstone block on this image shows location that was actually checked to determine type of temple and it is inside of swamp biome. Witch hut on the other hand is actually fully in river biome.
+
+<p align="center">
+  <img src="assets/worst-witch-hut.webp" alt="Witch hut fully in river" style="width:75%;" onerror="this.style.display='none';">
+</p>
+
+### Sister (shadow) seeds
+
+Minecraft actually uses only lower 48 bits of the seed for structure generation and full 64 bits for biomes. This means It is actually more effective to first find lower 48 bits where you get quad temple and later search through remaining sister seeds. I did not implement this logic yet, so [contributions](https://github.com/KK-mp4/witch-temple-finder?tab=contributing-ov-file) are welcome.
+
+```math
+\text{(base seeds)}\quad 2^{48} = 281474976710656 \\
+\text{(sister seeds)}\quad 2^{16} = 65536
+```
+
 > [!TIP]
 > If you input seed 0 into seed field Minecraft would actually generate random one. To generate actual seed 0 world, as Panda explained his video "*[Seeds & Generation #01: Ways to Enter a Seed](https://youtu.be/OLS7CCgNcuY)*" you would need to enter something like `PDFYFCD` as suggested by [seedinfo](https://panda4994.github.io/seedinfo/seedinfo.html#0) tool.
 
 ## Farming possibilities
 
-I am currently working on a couple of designs: "*[Desert Temple Witch Farm and Extended Shifting Floor | Minecraft ~1.4.2 - 1.6.2](https://youtu.be/Fetwu5-A980?list=PLI-RNUGw-AeSV09QsBt6lBs1ORZgm889b)*".
+I am currently working on a couple of designs: "*[Desert Temple Witch Farm and Extended Shifting Floor | Minecraft ~1.4.2 - 1.6.2](https://youtu.be/Fetwu5-A980?list=PLI-RNUGw-AeSV09QsBt6lBs1ORZgm889b)*":
+
+- Clock-based
+- Detection based with extended shifting floor
+- Path finding-based
 
 ## Setup with [VSCode](https://code.visualstudio.com/)
 

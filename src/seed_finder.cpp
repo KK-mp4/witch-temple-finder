@@ -81,9 +81,9 @@ int run_seed_finder(uint64_t startSeed = 0)
     // Main thread spawns workers and then joins (but workers run forever).
     const unsigned int numThreads = std::max(1u, std::thread::hardware_concurrency());
 
-    std::ofstream log("seed_finder.log", std::ios::trunc);
+    std::ofstream log("logs/seed_finder.log", std::ios::trunc);
     if (!log)
-        fprintf(stderr, "Failed to open log file 'seed_finder.log'\n");
+        fprintf(stderr, "Failed to open log file 'logs/seed_finder.log'\n");
     else
         log << "seed,structure_type,startX,startZ,swamp_blocks\n";
 
