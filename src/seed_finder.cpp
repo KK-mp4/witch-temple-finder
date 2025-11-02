@@ -40,9 +40,9 @@ enum TempleType
     TT_JUNGLE = 2,
     TT_WITCH = 4
 }; // Powers of 2 for bitmask
-static const int SELECTED_TEMPLE_TYPES = TT_DESERT | TT_JUNGLE | TT_WITCH;
+// static const int SELECTED_TEMPLE_TYPES = TT_DESERT | TT_JUNGLE | TT_WITCH;
 // A bit faster, since best will be desert temples anyways
-// static const int SELECTED_TEMPLE_TYPES = TT_DESERT;
+static const int SELECTED_TEMPLE_TYPES = TT_JUNGLE;
 
 // Structure piece sizes from TemplePieces.java (width, height, depth)
 struct PieceSize
@@ -85,7 +85,7 @@ int run_seed_finder(uint64_t startSeed = 0)
     if (!log)
         fprintf(stderr, "Failed to open log file 'logs/seed_finder.log'\n");
     else
-        log << "seed,structure_type,startX,startZ,swamp_blocks\n";
+        log << "seed,\tstructure_type,\tx,\tz,\tswamp_blocks\n";
 
     // Precompute chunk ranges
     const int chunkRadius = (int)((AREA_RADIUS_BLOCKS + CHUNK_SIZE - 1) / CHUNK_SIZE);
@@ -239,7 +239,7 @@ int run_seed_finder(uint64_t startSeed = 0)
 
                                     if (log)
                                     {
-                                        log << bestSeed << "," << typeName << "," << bestX << "," << bestZ << "," << bestArea << "\n";
+                                        log << bestSeed << ",\t" << typeName << ",\t" << bestX << ",\t" << bestZ << ",\t" << bestArea << "\n";
                                         log.flush();
                                     }
                                 }

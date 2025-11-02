@@ -89,7 +89,7 @@ int run_location_finder(uint64_t seed = 0)
     if (!log)
         fprintf(stderr, "Failed to open log file 'logs/location_finder.log'\n");
     else
-        log << "seed,structure_type,startX,startZ,swamp_blocks\n";
+        log << "seed,\tstructure_type,\tx,\tz,\tswamp_blocks\n";
 
     // Precompute chunk ranges for the whole world-border square
     // chunkRadius is number of chunks from 0 to border along one axis
@@ -250,7 +250,7 @@ int run_location_finder(uint64_t seed = 0)
 
                                 if (log)
                                 {
-                                    log << bestSeed << "," << typeName << "," << bestX << "," << bestZ << "," << bestArea << "\n";
+                                    log << bestSeed << ",\t" << typeName << ",\t" << bestX << ",\t" << bestZ << ",\t" << bestArea << "\n";
                                     log.flush();
                                 }
                             }

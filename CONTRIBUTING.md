@@ -6,16 +6,19 @@ Simply [fork the repository](#1-forking-the-repository) and make a [pull request
 
 ### 0.1. Sister (shadow) seeds
 
-Minecraft actually uses only lower 48 bits of the seed for structure generation and full 64 bits for biomes. This means It is actually more effective to first find lower 48 bits where you get quad temple and later search through remaining sister seeds. I did not implement this logic yet, so contributions are welcome.
+Minecraft actually uses only lower 48 bits of the seed for structure generation and full 64 bits for biomes. This means It is actually more effective to first find lower 48 bits where you get quad temple and later search through remaining sister seeds to find where all temples became desert pyramids and with high % of swamp. I did not implement this logic yet, so contributions are welcome (see [issue#2](https://github.com/KK-mp4/witch-temple-finder/issues/2)).
 
 ```math
-\text{(base seeds)}\quad 2^{48} = 281474976710656 \\
-\text{(sister seeds)}\quad 2^{16} = 65536
+\text{"base seeds":}\quad 2^{48} = 281474976710656
+```
+
+```math
+\text{"sister seeds":}\quad 2^{16} = 65536
 ```
 
 ### 0.2. Optimization
 
-I'm not using [cubiomes](https://github.com/Cubitect/cubiomes) library to it's full potential. As their `README.md` states it is more efficient to get biome range instead of block by block:
+I'm not using [cubiomes](https://github.com/Cubitect/cubiomes) library to it's full potential. As their `README.md` states it is more efficient to get biome range instead of block by block (see [issue#3](https://github.com/KK-mp4/witch-temple-finder/issues/3)):
 
 ```cpp
     int *biomeIds = allocCache(&g, r);
@@ -26,7 +29,7 @@ You can also do first call with low resolution to +- tell % of swamp, and then i
 
 ### 0.3. Witch hut and jungle temple rotation
 
-Since they are asymmetrical, their bounding box can be rotated. Currently by code does not implement those rotations and you make actually get false positives (see issue#1).
+Since they are asymmetrical, their bounding box can be rotated. Currently by code does not implement those rotations and you make actually get false positives (see [issue#1](https://github.com/KK-mp4/witch-temple-finder/issues/1)).
 
 ## 1. Forking the repository
 
@@ -115,9 +118,11 @@ git push --force-with-lease origin my-feature-branch
 
 If you are using other IDE, you probably know that you are doing and able to compile C++ code yourself. Down below I will provide a simple setup.
 
-This project includes the `.vscode/extensions.json` file, meaning that when you open project it will prompt you witch "*Do you want to install recommended extensions?*" notification. Click yes.
+This project includes the [`.vscode/extensions.json`](https://github.com/KK-mp4/witch-temple-finder/blob/main/.vscode/extensions.json) file, meaning that when you open project it will prompt you with "*Do you want to install recommended extensions?*" notification. Click yes.
 
 Now click "*Left Control + Shift + P*" to open quick actions tab and search for "*CMake: Configure*". Then scan for kits and if there is none you would have to install some C++ compiler. After that is done you can compile this project for your system and run it.
+
+To run different finders you can use *Run and Debug* tab on the left panel, there in the dropdown you can select different launch options. To modify launch options you can edit [`.vscode/launch.json`](https://github.com/KK-mp4/witch-temple-finder/blob/main/.vscode/launch.json) file.
 
 ### 3.1. Project structure
 

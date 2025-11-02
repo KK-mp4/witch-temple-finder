@@ -7,11 +7,11 @@
 
 [![en](https://img.shields.io/badge/lang-en-green.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.md)
 [![ru](https://img.shields.io/badge/lang-ru-red.svg)](https://github.com/KK-mp4/witch-temple-finder/blob/master/README.ru.md)
-<!-- DeepWiki badge here: https://deepwiki.ryoppippi.com/ -->
+[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/KK-mp4/witch-temple-finder)
 
 ## Introduction
 
-If you've played this game back when Witch mobs were added in 1.4.2 (12w38a) you maybe vaguely remember people reporting that witches spawn in Desert Temples or Jungle Temples. Well now I decided to investigate what was actually happening.
+If you've played this game back when Witch mobs were added in 1.4.2 (12w38a) you maybe vaguely remember people reporting that witches spawn in Desert Pyramids or Jungle Temples. Well now I decided to investigate what was actually happening.
 
 > [!NOTE]
 > Contributions to this repository are welcome. More about how to contribute on the [development guide](https://github.com/KK-mp4/witch-temple-finder?tab=contributing-ov-file) page.
@@ -66,7 +66,7 @@ static const PieceSize JUNGLE_TEMPLE = {12, 10, 15};
 static const PieceSize WITCH_HUT = {7, 5, 9};
 ```
 
-And while in [Minecraft JE 1.8.1](https://minecraft.wiki/w/Java_Edition_1.8.1) bounding box size of witch huts was actually increased by two blocks `{7, 7, 9}` allowing to build a farm with 3 floors, this is still not even close to jungle and desert temple sizes. So this is when my quest started, a quest to find seeds where instead of quad witch huts I search for desert temples that are mostly inside swamps.
+And while in [Minecraft JE 1.8.1](https://minecraft.wiki/w/Java_Edition_1.8.1) bounding box size of witch huts was actually increased by two blocks `{7, 7, 9}` allowing to build a farm with 3 floors, this is still not even close to jungle and desert pyramid sizes. So this is when my quest started, a quest to find seeds where instead of quad witch huts I search for desert pyramids that are mostly inside swamps.
 
 ## A quest to find seeds
 
@@ -85,7 +85,7 @@ And thats basically it! Some optimizations and multithreading later - results ar
 
 ## Results
 
-Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In 1.6.4 it was silently fixed. The seed finder needs further optimizations, I only ran for ~100k seeds in each category and only scanned `65536x65536` area around `0, 0`.
+Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In 1.6.4 it was silently fixed. The seed finder needs further optimizations, I only ran for ~100k seeds in single temple category and only scanned `65536x65536` area around `0, 0`. As for multi-temples there must be a rewrite for sure to make it work.
 
 ### Best multi-temples (similar to quad witch search)
 
@@ -174,7 +174,7 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
   <img src="assets/double-temple.webp" alt="Desert pyramid next to witch hut" style="width:75%;" onerror="this.style.display='none';">
 </p>
 
-### Best overall (single temple search)
+### Best single temple
 
 | Seed | Structure type | X | Z | Swamp blocks | % of max `21 * 21 - 1` | Spawning spaces
 |-|-|-|-|-|-|-
@@ -190,14 +190,18 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
 
 ### Best jungle temples (single temple search)
 
-Note: this list may contain false positives, because of issue #1.
+Note: this list may contain false positives, because of [issue#1](https://github.com/KK-mp4/witch-temple-finder/issues/1).
 
 | Seed | Structure type | X | Z | Swamp blocks | % of max `12 * 15 - 1` | Spawning spaces
 |-|-|-|-|-|-|-
-| 1214 | JungleTemple | 21280 | 30304 | 164 | 91.62% | 492
-| 470 | JungleTemple | -28496 | 30864 | 162 | 90.50% | 486
-| 418 | JungleTemple | 8224 | 33312 | 161 | 89.94% | 483
-| 135 | JungleTemple | 11328 | -34672 | 160 | 89.38% | 480
+| 167 | JungleTemple | -56976 | -61376 | 167 | 93.30% | 668
+| 1214 | JungleTemple | 21280 | 30304 | 164 | 91.62% | 656
+| 2687 | JungleTemple | 23568 | -50608 | 164 | 91.62% | 656
+| 2534 | JungleTemple | -14000 | -23232 | 163 | 91.06% | 652
+| 470 | JungleTemple | -28496 | 30864 | 162 | 90.50% | 648
+| 2516 | JungleTemple | -20688 | 8464 | 161 | 89.94% | 644
+| 418 | JungleTemple | 8224 | 33312 | 161 | 89.94% | 644
+| 135 | JungleTemple | 11328 | -34672 | 160 | 89.38% | 640
 
 <p align="center">
   <img src="assets/jungle-temple.webp" alt="Jungle temple with witches" style="width:75%;" onerror="this.style.display='none';">
@@ -205,7 +209,7 @@ Note: this list may contain false positives, because of issue #1.
 
 ### Worst witch hut
 
-Since game checks center of the chunk to determine type of temple and witch hut doesn't extend far enough to cover that center piece, it is actually possible to find a witch hut that is fully outside of desert, so I took a small side quest to find such witch hut.
+Since game checks center of the chunk to determine type of temple and witch hut doesn't extend far enough to cover that center piece, it is actually possible to find a witch hut that is fully outside of swamp, so I took a small side quest to find such witch hut.
 
 | Seed | Structure type | X | Z | Swamp blocks | % of max `0` | Spawning spaces
 |-|-|-|-|-|-|-
@@ -222,8 +226,11 @@ The redstone block on this image shows location that was actually checked to det
 Minecraft actually uses only lower 48 bits of the seed for structure generation and full 64 bits for biomes. This means It is actually more effective to first find lower 48 bits where you get quad temple and later search through remaining sister seeds. I did not implement this logic yet, so [contributions](https://github.com/KK-mp4/witch-temple-finder?tab=contributing-ov-file) are welcome.
 
 ```math
-\text{(base seeds)}\quad 2^{48} = 281474976710656 \\
-\text{(sister seeds)}\quad 2^{16} = 65536
+\text{"base seeds":}\quad 2^{48} = 281474976710656
+```
+
+```math
+\text{"sister seeds":}\quad 2^{16} = 65536
 ```
 
 > [!TIP]
@@ -231,19 +238,23 @@ Minecraft actually uses only lower 48 bits of the seed for structure generation 
 
 ## Farming possibilities
 
-I am currently working on a couple of designs: "*[Desert Temple Witch Farm and Extended Shifting Floor | Minecraft ~1.4.2 - 1.6.2](https://youtu.be/Fetwu5-A980?list=PLI-RNUGw-AeSV09QsBt6lBs1ORZgm889b)*":
+I am currently working on a couple of designs: "*[Desert Pyramid Witch Farm and Extended Shifting Floor | Minecraft ~1.4.2 - 1.6.2](https://youtu.be/Fetwu5-A980?list=PLI-RNUGw-AeSV09QsBt6lBs1ORZgm889b)*":
 
 - Clock-based
 - Detection based with extended shifting floor
 - Path finding-based
 
+If you forgot how witch farming looked like in those days I also compiled a playlist "*[Witch Farm Tech](https://youtube.com/playlist?list=PLI-RNUGw-AeR6QwW321UA8VxnCXdqrv18&si=n7UHa07ntY9rAeuC)*".
+
 ## Setup with [VSCode](https://code.visualstudio.com/)
 
 If you are using other IDE, you probably know that you are doing and able to compile C++ code yourself. Down below I will provide a simple setup.
 
-This project includes the `.vscode/extensions.json` file, meaning that when you open project it will prompt you witch "*Do you want to install recommended extensions?*" notification. Click yes.
+This project includes the [`.vscode/extensions.json`](https://github.com/KK-mp4/witch-temple-finder/blob/main/.vscode/extensions.json) file, meaning that when you open project it will prompt you with "*Do you want to install recommended extensions?*" notification. Click yes.
 
 Now click "*Left Control + Shift + P*" to open quick actions tab and search for "*CMake: Configure*". Then scan for kits and if there is none you would have to install some C++ compiler. After that is done you can compile this project for your system and run it.
+
+To run different finders you can use *Run and Debug* tab on the left panel, there in the dropdown you can select different launch options. To modify launch options you can edit [`.vscode/launch.json`](https://github.com/KK-mp4/witch-temple-finder/blob/main/.vscode/launch.json) file.
 
 ## Contributors
 
