@@ -17,29 +17,99 @@ constexpr int MC_VERSION = MC_1_5;
 constexpr int QUERY_Y = 64;
 constexpr int BIOME_QUERY_SCALE = 1;
 
+constexpr int BIOME_DESERT = desert;
+constexpr int BIOME_DESERT_HILLS = desert_hills;
+constexpr int BIOME_JUNGLE = jungle;
+constexpr int BIOME_JUNGLE_HILLS = jungle_hills;
+constexpr int BIOME_SWAMPLAND = swampland;
+
+constexpr int CHUNK_SIZE = 16;
+constexpr int HALF_CHUNK = CHUNK_SIZE / 2;
+
+// Structure piece sizes from TemplePieces.java (width, height, depth)
+struct PieceSize
+{
+    int w, h, d;
+    std::string typeName;
+};
+static const PieceSize DESERT_PYRAMID = {21, 15, 21};
+static const PieceSize JUNGLE_TEMPLE = {12, 10, 15};
+static const PieceSize WITCH_HUT = {7, 5, 9};
+
+enum TempleType
+{
+    TT_DESERT = 1,
+    TT_JUNGLE = 2,
+    TT_WITCH = 4
+}; // Powers of 2 for bitmask
+constexpr int SELECTED_TEMPLE_TYPES = TT_DESERT | TT_JUNGLE | TT_WITCH;
+
 int check(uint64_t s48, void *data)
 {
     const StructureConfig sconf = *(const StructureConfig *)data;
     return isQuadBase(sconf, s48 - sconf.salt, 148);
 }
 
-int countSwampBlocks(Generator *g, int startX, int startZ)
+// Returns temple type if biome is valid and temple type is selected:
+// 1 -> DesertPyramid
+// 2 -> JungleTemple
+// 3 -> WitchHut
+int isViableTemplePos(Generator *g, int x, int z)
 {
-    int endX = startX + 21 - 1;
-    int endZ = startZ + 21 - 1;
+    int biomeAtCenter = getBiomeAt(g, BIOME_QUERY_SCALE, x + HALF_CHUNK, QUERY_Y, z + HALF_CHUNK);
+
+    if (biomeAtCenter == desert || biomeAtCenter == desert_hills)
+    {
+        return (SELECTED_TEMPLE_TYPES & TT_DESERT) ? 1 : 0;
+    }
+    else if (biomeAtCenter == jungle || biomeAtCenter == jungle_hills)
+    {
+        return (SELECTED_TEMPLE_TYPES & TT_JUNGLE) ? 2 : 0;
+    }
+    else if (biomeAtCenter == swampland)
+    {
+        return (SELECTED_TEMPLE_TYPES & TT_WITCH) ? 3 : 0;
+    }
+
+    return 0;
+}
+
+int countSwampSpawnBlocks(Generator *g, int startX, int startZ, int templeType)
+{
+    PieceSize piece;
+    int multiplier = 0;
+
+    if (templeType == 1)
+    {
+        piece = DESERT_PYRAMID;
+        multiplier = 5;
+    }
+    else if (templeType == 2)
+    {
+        piece = JUNGLE_TEMPLE;
+        multiplier = 4;
+    }
+    else
+    {
+        piece = WITCH_HUT;
+        multiplier = 2;
+    }
+
+    int endX = startX + piece.w;
+    int endZ = startZ + piece.d;
 
     int swampCount = 0;
-    for (int bx = startX; bx <= endX; ++bx)
+    for (int x = startX; x < endX; ++x)
     {
-        for (int bz = startZ; bz <= endZ; ++bz)
+        for (int z = startZ; z < endZ; ++z)
         {
-            int bBiome = getBiomeAt(g, BIOME_QUERY_SCALE, bx, QUERY_Y, bz);
-            if (bBiome == swampland)
+            int biome = getBiomeAt(g, BIOME_QUERY_SCALE, x, QUERY_Y, z);
+            if (biome == swampland)
                 ++swampCount;
         }
     }
 
-    return swampCount;
+    return swampCount * multiplier;
 }
 
 int run_quad_temple_finder(uint64_t startSeed /* = 0 */)
@@ -98,33 +168,48 @@ int run_quad_temple_finder(uint64_t startSeed /* = 0 */)
             uint64_t seed = s48 | (high << 48);
             applySeed(&g, DIM_OVERWORLD, seed);
 
-            if (isViableStructurePos(styp, &g, pos[0].x, pos[0].z, 0) &&
-                isViableStructurePos(styp, &g, pos[1].x, pos[1].z, 0) &&
-                isViableStructurePos(styp, &g, pos[2].x, pos[2].z, 0) &&
-                isViableStructurePos(styp, &g, pos[3].x, pos[3].z, 0))
+            int templeTypes[4];
+
+            for (int j = 0; j < 4; ++j)
+                templeTypes[j] = isViableTemplePos(&g, pos[j].x, pos[j].z);
+
+            // Continue next cycle if not all 4 spawned
+            if (!(templeTypes[0] &&
+                  templeTypes[1] &&
+                  templeTypes[2] &&
+                  templeTypes[3]))
             {
-                int swampTotal = 0;
-                swampTotal += countSwampBlocks(&g, pos[0].x, pos[0].z);
-                swampTotal += countSwampBlocks(&g, pos[1].x, pos[1].z);
-                swampTotal += countSwampBlocks(&g, pos[2].x, pos[2].z);
-                swampTotal += countSwampBlocks(&g, pos[3].x, pos[3].z);
+                continue;
+            }
 
+            int swampSpawnBlocksTotal = 0;
+            for (int j = 0; j < 4; ++j)
+                swampSpawnBlocksTotal += countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]);
+
+            {
+                std::lock_guard<std::mutex> lock(bestMutex);
+                if (swampSpawnBlocksTotal >= bestArea && swampSpawnBlocksTotal > 0)
                 {
-                    std::lock_guard<std::mutex> lock(bestMutex);
-                    if (swampTotal >= bestArea && swampTotal > 0)
+                    bestArea = swampSpawnBlocksTotal;
+                    printf("[NEW BEST] seed=%" PRId64 ", swamp-spawn-blocks=%d\n", (int64_t)seed, swampSpawnBlocksTotal);
+                    for (int j = 0; j < 4; ++j)
                     {
-                        bestArea = swampTotal;
-                        printf("[NEW BEST] seed=%" PRId64 ", swamp-blocks=%d\n", (int64_t)seed, swampTotal);
-                        for (int p = 0; p < 4; ++p)
-                            printf("  DesertPyramid %d: /tp @p %d, 100, %d | %d\n", p, pos[p].x, pos[p].z, countSwampBlocks(&g, pos[p].x, pos[p].z));
+                        const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
+                                                                                                            : "WitchHut");
+                        printf("\t%s, %d: '/tp @p %d, 100, %d'\n", typeName, countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]), pos[j].x, pos[j].z);
+                    }
 
-                        if (log)
+                    if (log)
+                    {
+                        log << (int64_t)seed << ", " << swampSpawnBlocksTotal << "\n";
+                        for (int j = 0; j < 4; ++j)
                         {
-                            log << (int64_t)seed << ", " << swampTotal << "\n";
-                            for (int p = 0; p < 4; ++p)
-                                log << "\tDesertPyramid #" << p + 1 << ": " << pos[p].x << ", " << pos[p].z << ",\t" << countSwampBlocks(&g, pos[p].x, pos[p].z) << "\n";
-                            log.flush();
+                            const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
+                                                                                                                : "WitchHut");
+                            log << "\t" << typeName << ": " << pos[j].x << ", " << pos[j].z << ",\t" << countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]) << "\n";
                         }
+
+                        log.flush();
                     }
                 }
             }
