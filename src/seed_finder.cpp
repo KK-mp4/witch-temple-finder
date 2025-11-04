@@ -42,7 +42,7 @@ enum TempleType
 }; // Powers of 2 for bitmask
 // static const int SELECTED_TEMPLE_TYPES = TT_DESERT | TT_JUNGLE | TT_WITCH;
 // A bit faster, since best will be desert temples anyways
-static const int SELECTED_TEMPLE_TYPES = TT_JUNGLE;
+static const int SELECTED_TEMPLE_TYPES = TT_DESERT;
 
 // Structure piece sizes from TemplePieces.java (width, height, depth)
 struct PieceSize
@@ -80,6 +80,7 @@ int run_seed_finder(uint64_t startSeed = 0)
 {
     // Main thread spawns workers and then joins (but workers run forever).
     const unsigned int numThreads = std::max(1u, std::thread::hardware_concurrency());
+    // const unsigned int numThreads = 4;
 
     std::ofstream log("logs/seed_finder.log", std::ios::trunc);
     if (!log)

@@ -81,13 +81,13 @@ Thanks to [Bjoel](https://github.com/TheBjoel2) for [C++ Java random implementat
 And thats basically it! Some optimizations and multithreading later - results are down below.
 
 > [!TIP]
-> For previewing old Minecraft seeds I recommend using [Amidst](https://github.com/toolbox4minecraft/amidst) or [Cubiomes Viewer](https://github.com/Cubitect/cubiomes-viewer).
+> For previewing old Minecraft seeds I recommend using [Amidst](https://github.com/toolbox4minecraft/amidst), [Cubiomes Viewer](https://github.com/Cubitect/cubiomes-viewer) or [Minemap](https://github.com/hube12/Minemap).
 
 ## Results
 
 Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In 1.6.4 it was silently fixed. The seed finder needs further optimizations, I only ran for ~100k seeds in single temple category and only scanned `65536x65536` area around `0, 0`. As for multi-temples there must be a rewrite for sure to make it work.
 
-### Best multi-temples (similar to quad witch search)
+### Best found multi-temples (similar to quad witch search)
 
 <table>
   <thead>
@@ -103,6 +103,62 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td rowspan="4">7470627834469325444</td>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>0</td>
+      <td rowspan="4">311</td>
+      <td rowspan="4">17.67%</td>
+      <td rowspan="4">1555</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>32</td>
+      <td>172</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-144</td>
+      <td>139</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>16</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-7800515391302042748</td>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>0</td>
+      <td rowspan="4">234</td>
+      <td rowspan="4">13.29%</td>
+      <td rowspan="4">1170</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>32</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-144</td>
+      <td>188</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>16</td>
+      <td>0</td>
+      <td>46</td>
+    </tr>
     <tr>
       <td rowspan="2">151</td>
       <td>DesertPyramid</td>
@@ -171,33 +227,43 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
 </table>
 
 <p align="center">
+  <img src="assets/quad-desert-pyramid.webp" alt="Desert pyramid next to witch hut" style="width:75%;" onerror="this.style.display='none';">
+</p>
+
+<p align="center">
   <img src="assets/double-temple.webp" alt="Desert pyramid next to witch hut" style="width:75%;" onerror="this.style.display='none';">
 </p>
 
-### Best single temple
+### Best found single temple
 
 | Seed | Structure type | X | Z | Swamp blocks | % of max `21 * 21 - 1` | Spawning spaces
 |-|-|-|-|-|-|-
 | 28257 | DesertPyramid | 22784 | 16752 | 401 | 91.14% | 2005
 | 42162 | DesertPyramid | 49264 | -21248 | 393 | 89.32% | 1965
 | 38711 | DesertPyramid | -29984 | -16752 | 381 | 86.59% | 1905
+| 1306145184061456995 | DesertPyramid | -25976656 | -29555600 | 378 | 85.91% | 1890
 | 38513 | DesertPyramid | 46144 | 21616 | 375 | 85.23% | 1875
-| 1306145184061456995 | DesertPyramid | 15310960 | -29966672 | 365 | 82.95% | 1825
 
 <p align="center">
   <img src="assets/desert-pyramid.webp" alt="Desert pyramid with witches" style="width:75%;" onerror="this.style.display='none';">
 </p>
 
-### Best jungle temples (single temple search)
+### Best found jungle temples (single temple search)
 
 Note: this list may contain false positives, because of [issue#1](https://github.com/KK-mp4/witch-temple-finder/issues/1).
 
 | Seed | Structure type | X | Z | Swamp blocks | % of max `12 * 15 - 1` | Spawning spaces
 |-|-|-|-|-|-|-
+| 65631 | JungleTemple | -41200 | 21104 | 173 | 96.65% | 692
+| 6156 | JungleTemple | -26608 | 9904 | 167 | 93.30% | 668
 | 167 | JungleTemple | -56976 | -61376 | 167 | 93.30% | 668
+| 3818 | JungleTemple | 7968 | 28016 | 165 | 92.18% | 660
+| 62650 | JungleTemple | 65136 | -26256 | 165 | 92.18% | 660
 | 1214 | JungleTemple | 21280 | 30304 | 164 | 91.62% | 656
 | 2687 | JungleTemple | 23568 | -50608 | 164 | 91.62% | 656
 | 2534 | JungleTemple | -14000 | -23232 | 163 | 91.06% | 652
+| 3450 | JungleTemple | -24736 | 10832 | 163 | 91.06% | 652
+| 62564 | JungleTemple | 53408 | 31792 | 163 | 91.06% | 652
 | 470 | JungleTemple | -28496 | 30864 | 162 | 90.50% | 648
 | 2516 | JungleTemple | -20688 | 8464 | 161 | 89.94% | 644
 | 418 | JungleTemple | 8224 | 33312 | 161 | 89.94% | 644
@@ -221,7 +287,7 @@ The redstone block on this image shows location that was actually checked to det
   <img src="assets/worst-witch-hut.webp" alt="Witch hut fully in river" style="width:75%;" onerror="this.style.display='none';">
 </p>
 
-### Sister (shadow) seeds
+### Sister seeds
 
 Minecraft actually uses only lower 48 bits of the seed for structure generation and full 64 bits for biomes. This means It is actually more effective to first find lower 48 bits where you get quad temple and later search through remaining sister seeds. I did not implement this logic yet, so [contributions](https://github.com/KK-mp4/witch-temple-finder?tab=contributing-ov-file) are welcome.
 
@@ -232,6 +298,8 @@ Minecraft actually uses only lower 48 bits of the seed for structure generation 
 ```math
 \text{"sister seeds":}\quad 2^{16} = 65536
 ```
+
+Note that this is completely opposite of [shadow seeds](https://seedfinding.com/shadow_seed/) - when two seeds share same biome map but everything else is different.
 
 > [!TIP]
 > If you input seed 0 into seed field Minecraft would actually generate random one. To generate actual seed 0 world, as Panda explained his video "*[Seeds & Generation #01: Ways to Enter a Seed](https://youtu.be/OLS7CCgNcuY)*" you would need to enter something like `PDFYFCD` as suggested by [seedinfo](https://panda4994.github.io/seedinfo/seedinfo.html#0) tool.
