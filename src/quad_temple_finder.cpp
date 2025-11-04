@@ -1,10 +1,11 @@
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <inttypes.h>
 #include <mutex>
-#include <algorithm>
-#include <fstream>
+#include <vector>
 
 extern "C"
 {
@@ -149,74 +150,101 @@ int run_quad_temple_finder(uint64_t startSeed /* = 0 */)
     std::mutex bestMutex;
     int bestArea = 0;
 
-    setupGenerator(&g, MC_VERSION, 0);
+    const uint64_t numThreads =
+        std::max<uint64_t>(1, std::min<uint64_t>((uint64_t)threads, basecnt));
+    std::atomic<uint64_t> nextIndex(0);
+    std::atomic<uint64_t> processedBases(0);
+    const uint64_t printProgressEvery = 4;
 
-    uint64_t i;
-    for (i = 0; i < basecnt; ++i)
+    std::vector<std::thread> workers;
+    workers.reserve(numThreads);
+
+    for (unsigned int tid = 0; tid < numThreads; ++tid)
     {
-        uint64_t s48 = moveStructure(bases[i] - sconf.salt, -1, -1);
+        workers.emplace_back([tid, numThreads, basecnt, bases, styp, &sconf, &bestMutex, &bestArea, &log, &nextIndex, &processedBases, printProgressEvery]()
+                             {
+            Generator g;
+            setupGenerator(&g, MC_VERSION, 0);
 
-        Pos pos[4];
-        getStructurePos(styp, MC_VERSION, s48, -1, -1, &pos[0]);
-        getStructurePos(styp, MC_VERSION, s48, -1, 0, &pos[1]);
-        getStructurePos(styp, MC_VERSION, s48, 0, -1, &pos[2]);
-        getStructurePos(styp, MC_VERSION, s48, 0, 0, &pos[3]);
-
-        uint64_t high;
-        for (high = 0; high < 0x10000; high++)
-        {
-            uint64_t seed = s48 | (high << 48);
-            applySeed(&g, DIM_OVERWORLD, seed);
-
-            int templeTypes[4];
-
-            for (int j = 0; j < 4; ++j)
-                templeTypes[j] = isViableTemplePos(&g, pos[j].x, pos[j].z);
-
-            // Continue next cycle if not all 4 spawned
-            if (!(templeTypes[0] &&
-                  templeTypes[1] &&
-                  templeTypes[2] &&
-                  templeTypes[3]))
+            for (;;)
             {
-                continue;
-            }
+                uint64_t i = nextIndex.fetch_add(1, std::memory_order_relaxed);
+                if (i >= basecnt)
+                    break;
 
-            int swampSpawnBlocksTotal = 0;
-            for (int j = 0; j < 4; ++j)
-                swampSpawnBlocksTotal += countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]);
+                uint64_t s48 = moveStructure(bases[i] - sconf.salt, -1, -1);
 
-            {
-                std::lock_guard<std::mutex> lock(bestMutex);
-                if (swampSpawnBlocksTotal >= bestArea && swampSpawnBlocksTotal > 0)
+                Pos pos[4];
+                getStructurePos(styp, MC_VERSION, s48, -1, -1, &pos[0]);
+                getStructurePos(styp, MC_VERSION, s48, -1, 0, &pos[1]);
+                getStructurePos(styp, MC_VERSION, s48, 0, -1, &pos[2]);
+                getStructurePos(styp, MC_VERSION, s48, 0, 0, &pos[3]);
+
+                for (uint64_t high = 0; high < 0x10000; ++high)
                 {
-                    bestArea = swampSpawnBlocksTotal;
-                    printf("[NEW BEST] seed=%" PRId64 ", swamp-spawn-blocks=%d\n", (int64_t)seed, swampSpawnBlocksTotal);
+                    uint64_t seed = s48 | (high << 48);
+                    applySeed(&g, DIM_OVERWORLD, seed);
+
+                    int templeTypes[4];
                     for (int j = 0; j < 4; ++j)
+                        templeTypes[j] = isViableTemplePos(&g, pos[j].x, pos[j].z);
+
+                    // Continue next cycle if not all 4 spawned
+                    if (!(templeTypes[0] &&
+                        templeTypes[1] &&
+                        templeTypes[2] &&
+                        templeTypes[3]))
                     {
-                        const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
-                                                                                                            : "WitchHut");
-                        printf("\t%s, %d: '/tp @p %d, 100, %d'\n", typeName, countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]), pos[j].x, pos[j].z);
+                        continue;
                     }
 
-                    if (log)
-                    {
-                        log << (int64_t)seed << ", " << swampSpawnBlocksTotal << "\n";
-                        for (int j = 0; j < 4; ++j)
-                        {
-                            const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
-                                                                                                                : "WitchHut");
-                            log << "\t" << typeName << ": " << pos[j].x << ", " << pos[j].z << ",\t" << countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]) << "\n";
-                        }
+                    int swampSpawnBlocksTotal = 0;
+                    for (int j = 0; j < 4; ++j)
+                        swampSpawnBlocksTotal += countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]);
 
-                        log.flush();
+                    if (swampSpawnBlocksTotal > 0)
+                    {
+                        std::lock_guard<std::mutex> lock(bestMutex);
+                        if (swampSpawnBlocksTotal >= bestArea)
+                        {
+                            bestArea = swampSpawnBlocksTotal;
+                            printf("[NEW BEST] seed=%" PRId64 ", swamp-spawn-blocks=%d\n", (int64_t)seed, swampSpawnBlocksTotal);
+                            for (int j = 0; j < 4; ++j)
+                            {
+                                const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
+                                                                                                                    : "WitchHut");
+                                printf("\t%s, %d: '/tp @p %d, 100, %d'\n", typeName, countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]), pos[j].x, pos[j].z);
+                            }
+
+                            if (log)
+                            {
+                                log << (int64_t)seed << ", " << swampSpawnBlocksTotal << "\n";
+                                for (int j = 0; j < 4; ++j)
+                                {
+                                    const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
+                                                                                                                        : "WitchHut");
+                                    log << "\t" << typeName << ": " << pos[j].x << ", " << pos[j].z << ",\t" << countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]) << "\n";
+                                }
+                                log.flush();
+                            }
+                        }
                     }
                 }
-            }
-        }
+
+                uint64_t done = processedBases.fetch_add(1, std::memory_order_relaxed) + 1;
+                if (done % printProgressEvery == 0)
+                {
+                    std::lock_guard<std::mutex> lock(bestMutex);
+                    printf("[PROGRESS] worker=%u processed-bases=%llu best-so-far area=%d\n",
+                        tid, (unsigned long long)done, bestArea);
+                    fflush(stdout);
+                }
+            } });
     }
 
-    free(bases);
+    for (auto &th : workers)
+        th.join();
+
     printf("Done.\n");
     return 0;
 }
