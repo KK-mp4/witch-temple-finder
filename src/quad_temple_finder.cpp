@@ -99,21 +99,42 @@ int countSwampSpawnBlocks(Generator *g, int startX, int startZ, int templeType)
     int endX = startX + piece.w;
     int endZ = startZ + piece.d;
 
+    Range r;
+    r.scale = BIOME_QUERY_SCALE;
+    r.x  = startX;
+    r.z  = startZ;
+    r.sx = piece.w;
+    r.sz = piece.d;
+    r.y  = QUERY_Y;
+    r.sy = 1;
+
+    int *biomeIds = allocCache(g, r);
+    if (!biomeIds) {
+        // allocation failed: fallback to per-block loop
+        int swampCount = 0;
+        for (int x = startX; x < endX; ++x)
+            for (int z = startZ; z < endZ; ++z)
+                if (getBiomeAt(g, BIOME_QUERY_SCALE, x, QUERY_Y, z) == swampland)
+                    ++swampCount;
+        return swampCount * multiplier;
+    }
+
+    genBiomes(g, biomeIds, r);
+
     int swampCount = 0;
-    for (int x = startX; x < endX; ++x)
-    {
-        for (int z = startZ; z < endZ; ++z)
-        {
-            int biome = getBiomeAt(g, BIOME_QUERY_SCALE, x, QUERY_Y, z);
-            if (biome == swampland)
-                ++swampCount;
+    for (int iz = 0; iz < r.sz; ++iz) {
+        int base = iz * r.sx;
+        for (int ix = 0; ix < r.sx; ++ix) {
+            int biome = biomeIds[ base + ix ];
+            if (biome == swampland) ++swampCount;
         }
     }
 
+    free(biomeIds);
     return swampCount * multiplier;
 }
 
-int run_quad_temple_finder(uint64_t startSeed /* = 0 */)
+int run_quad_temple_finder(uint64_t startIndex = 0)
 {
     int styp = Desert_Pyramid;
 
@@ -152,9 +173,9 @@ int run_quad_temple_finder(uint64_t startSeed /* = 0 */)
 
     const uint64_t numThreads =
         std::max<uint64_t>(1, std::min<uint64_t>((uint64_t)threads, basecnt));
-    std::atomic<uint64_t> nextIndex(0);
+    std::atomic<uint64_t> nextIndex(startIndex);
     std::atomic<uint64_t> processedBases(0);
-    const uint64_t printProgressEvery = 4;
+    const uint64_t printProgressEvery = 32;
 
     std::vector<std::thread> workers;
     workers.reserve(numThreads);
@@ -213,7 +234,7 @@ int run_quad_temple_finder(uint64_t startSeed /* = 0 */)
                             {
                                 const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
                                                                                                                     : "WitchHut");
-                                printf("\t%s, %d: '/tp @p %d, 100, %d'\n", typeName, countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]), pos[j].x, pos[j].z);
+                                printf("\t%s, %d: '/tp @p %d 100 %d'\n", typeName, countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]), pos[j].x, pos[j].z);
                             }
 
                             if (log)
@@ -223,7 +244,7 @@ int run_quad_temple_finder(uint64_t startSeed /* = 0 */)
                                 {
                                     const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
                                                                                                                         : "WitchHut");
-                                    log << "\t" << typeName << ": " << pos[j].x << ", " << pos[j].z << ",\t" << countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]) << "\n";
+                                    log << "\t" << typeName << " - " << countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]) << ": " << pos[j].x << ", " << pos[j].z << "\n";
                                 }
                                 log.flush();
                             }
@@ -235,7 +256,7 @@ int run_quad_temple_finder(uint64_t startSeed /* = 0 */)
                 if (done % printProgressEvery == 0)
                 {
                     std::lock_guard<std::mutex> lock(bestMutex);
-                    printf("[PROGRESS] worker=%u processed-bases=%llu best-so-far area=%d\n",
+                    printf("[PROGRESS] worker=%u processed-bases=%llu best-so-far swamp-spawn-blocks=%d\n",
                         tid, (unsigned long long)done, bestArea);
                     fflush(stdout);
                 }
