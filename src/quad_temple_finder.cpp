@@ -1,49 +1,4 @@
-#include <algorithm>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
-#include <inttypes.h>
-#include <mutex>
-#include <vector>
-
-extern "C"
-{
-#include "finders.h"
-#include "quadbase.h"
-#include "generator.h"
-}
-
-constexpr int MC_VERSION = MC_1_5;
-constexpr int QUERY_Y = 64;
-constexpr int BIOME_QUERY_SCALE = 1;
-
-constexpr int BIOME_DESERT = desert;
-constexpr int BIOME_DESERT_HILLS = desert_hills;
-constexpr int BIOME_JUNGLE = jungle;
-constexpr int BIOME_JUNGLE_HILLS = jungle_hills;
-constexpr int BIOME_SWAMPLAND = swampland;
-
-constexpr int CHUNK_SIZE = 16;
-constexpr int HALF_CHUNK = CHUNK_SIZE / 2;
-
-// Structure piece sizes from TemplePieces.java (width, height, depth)
-struct PieceSize
-{
-    int w, h, d;
-    std::string typeName;
-};
-static const PieceSize DESERT_PYRAMID = {21, 15, 21};
-static const PieceSize JUNGLE_TEMPLE = {12, 10, 15};
-static const PieceSize WITCH_HUT = {7, 5, 9};
-
-enum TempleType
-{
-    TT_DESERT = 1,
-    TT_JUNGLE = 2,
-    TT_WITCH = 4
-}; // Powers of 2 for bitmask
-constexpr int SELECTED_TEMPLE_TYPES = TT_DESERT | TT_JUNGLE | TT_WITCH;
+#include <finder_utils.hpp>
 
 int check(uint64_t s48, void *data)
 {
@@ -51,98 +6,15 @@ int check(uint64_t s48, void *data)
     return isQuadBase(sconf, s48 - sconf.salt, 148);
 }
 
-// Returns temple type if biome is valid and temple type is selected:
-// 1 -> DesertPyramid
-// 2 -> JungleTemple
-// 3 -> WitchHut
-int isViableTemplePos(Generator *g, int x, int z)
-{
-    int biomeAtCenter = getBiomeAt(g, BIOME_QUERY_SCALE, x + HALF_CHUNK, QUERY_Y, z + HALF_CHUNK);
-
-    if (biomeAtCenter == desert || biomeAtCenter == desert_hills)
-    {
-        return (SELECTED_TEMPLE_TYPES & TT_DESERT) ? 1 : 0;
-    }
-    else if (biomeAtCenter == jungle || biomeAtCenter == jungle_hills)
-    {
-        return (SELECTED_TEMPLE_TYPES & TT_JUNGLE) ? 2 : 0;
-    }
-    else if (biomeAtCenter == swampland)
-    {
-        return (SELECTED_TEMPLE_TYPES & TT_WITCH) ? 3 : 0;
-    }
-
-    return 0;
-}
-
-int countSwampSpawnBlocks(Generator *g, int startX, int startZ, int templeType)
-{
-    PieceSize piece;
-    int multiplier = 0;
-
-    if (templeType == 1)
-    {
-        piece = DESERT_PYRAMID;
-        multiplier = 5;
-    }
-    else if (templeType == 2)
-    {
-        piece = JUNGLE_TEMPLE;
-        multiplier = 4;
-    }
-    else
-    {
-        piece = WITCH_HUT;
-        multiplier = 2;
-    }
-
-    int endX = startX + piece.w;
-    int endZ = startZ + piece.d;
-
-    Range r;
-    r.scale = BIOME_QUERY_SCALE;
-    r.x  = startX;
-    r.z  = startZ;
-    r.sx = piece.w;
-    r.sz = piece.d;
-    r.y  = QUERY_Y;
-    r.sy = 1;
-
-    int *biomeIds = allocCache(g, r);
-    if (!biomeIds) {
-        // allocation failed: fallback to per-block loop
-        int swampCount = 0;
-        for (int x = startX; x < endX; ++x)
-            for (int z = startZ; z < endZ; ++z)
-                if (getBiomeAt(g, BIOME_QUERY_SCALE, x, QUERY_Y, z) == swampland)
-                    ++swampCount;
-        return swampCount * multiplier;
-    }
-
-    genBiomes(g, biomeIds, r);
-
-    int swampCount = 0;
-    for (int iz = 0; iz < r.sz; ++iz) {
-        int base = iz * r.sx;
-        for (int ix = 0; ix < r.sx; ++ix) {
-            int biome = biomeIds[ base + ix ];
-            if (biome == swampland) ++swampCount;
-        }
-    }
-
-    free(biomeIds);
-    return swampCount * multiplier;
-}
-
 int run_quad_temple_finder(uint64_t startIndex = 0)
 {
     int styp = Desert_Pyramid;
 
-    std::ofstream log("logs/quad_temple_finder.log", std::ios::trunc);
+    std::ofstream log("logs/quad_temple_finder.log", std::ios::app);
     if (!log)
         fprintf(stderr, "Failed to open log file 'logs/quad_temple_finder.log'\n");
     else
-        log << "seed, total_swamp_blocks\n";
+        log << "\n\nseed, total_swamp_blocks\n";
 
     uint64_t basecnt = 0;
     uint64_t *bases = NULL;
@@ -223,7 +95,9 @@ int run_quad_temple_finder(uint64_t startIndex = 0)
                     for (int j = 0; j < 4; ++j)
                         swampSpawnBlocksTotal += countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]);
 
-                    if (swampSpawnBlocksTotal > 0)
+                    if (swampSpawnBlocksTotal <= 0)
+                        continue;
+
                     {
                         std::lock_guard<std::mutex> lock(bestMutex);
                         if (swampSpawnBlocksTotal >= bestArea)

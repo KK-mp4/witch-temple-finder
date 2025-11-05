@@ -2,16 +2,6 @@
   "version": "0.1.0",
   "configurations": [
     {
-      "name": "(MSVC) Search for best seeds",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "program": "${command:cmake.launchTargetPath}",
-      "args": ["seed", "0"],
-      "cwd": "${workspaceFolder}",
-      "stopAtEntry": false,
-      "externalConsole": true
-    },
-    {
       "name": "(MSVC) Search for quad temple",
       "type": "cppvsdbg",
       "request": "launch",
@@ -19,17 +9,27 @@
       "args": ["quad", "0"],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,
-      "externalConsole": true
+      "console": "externalTerminal"
     },
     {
-      "name": "(MSVC) Search for best location in a seed",
+      "name": "(MSVC) Search for single temple",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": ["seed", "0"],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "externalTerminal"
+    },
+    {
+      "name": "(MSVC) Search for single temple in a seed",
       "type": "cppvsdbg",
       "request": "launch",
       "program": "${command:cmake.launchTargetPath}",
       "args": ["loc", "1306145184061456995"],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,
-      "externalConsole": true
+      "console": "externalTerminal"
     }
   ]
 }
