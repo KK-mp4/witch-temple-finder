@@ -1,0 +1,4 @@
+[submodule "external/cubiomes"]
+	path = external/cubiomes
+	url = https://github.com/Cubitect/cubiomes
+	branch = master
