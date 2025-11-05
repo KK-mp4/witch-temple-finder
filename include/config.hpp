@@ -14,13 +14,6 @@ inline constexpr int MC_VERSION = MC_1_5; // Minecraft JE 1.4.2 - ~1.6.3.
 inline constexpr int QUERY_Y = 64;
 inline constexpr int BIOME_QUERY_SCALE = 1;
 
-// Valid biomes for temples
-inline constexpr int BIOME_DESERT = desert;
-inline constexpr int BIOME_DESERT_HILLS = desert_hills;
-inline constexpr int BIOME_JUNGLE = jungle;
-inline constexpr int BIOME_JUNGLE_HILLS = jungle_hills;
-inline constexpr int BIOME_SWAMPLAND = swampland;
-
 // Structure piece sizes from TemplePieces.java (width, height, depth)
 struct PieceSize
 {

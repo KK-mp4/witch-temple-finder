@@ -106,6 +106,5 @@ inline int countSwampSpawnBlocks(Generator *g, int startX, int startZ, int templ
     }
 
     free(biomeIds);
-    // return swampCount * multiplier;
-    return swampCount;
+    return swampCount * multiplier;
 }

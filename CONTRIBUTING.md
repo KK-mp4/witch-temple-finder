@@ -4,7 +4,7 @@ Simply [fork the repository](#1-forking-the-repository) and make a [pull request
 
 ## 0. TODO
 
-### 0.1. Sister (shadow) seeds
+### 0.1. Sister seeds
 
 Minecraft actually uses only lower 48 bits of the seed for structure generation and full 64 bits for biomes. This means It is actually more effective to first find lower 48 bits where you get quad temple and later search through remaining sister seeds to find where all temples became desert pyramids and with high % of swamp. I did not implement this logic yet, so contributions are welcome (see [issue#2](https://github.com/KK-mp4/witch-temple-finder/issues/2)).
 
@@ -16,18 +16,9 @@ Minecraft actually uses only lower 48 bits of the seed for structure generation 
 \text{"sister seeds":}\quad 2^{16} = 65536
 ```
 
-### 0.2. Optimization
-
-I'm not using [cubiomes](https://github.com/Cubitect/cubiomes) library to it's full potential. As their `README.md` states it is more efficient to get biome range instead of block by block (see [issue#3](https://github.com/KK-mp4/witch-temple-finder/issues/3)):
-
-```cpp
-    int *biomeIds = allocCache(&g, r);
-    genBiomes(&g, biomeIds, r);
-```
-
 You can also do first call with low resolution to +- tell % of swamp, and then if % is high do a high resolution pass.
 
-### 0.3. Witch hut and jungle temple rotation
+### 0.2. Witch hut and jungle temple rotation
 
 Since they are asymmetrical, their bounding box can be rotated. Currently by code does not implement those rotations and you make actually get false positives (see [issue#1](https://github.com/KK-mp4/witch-temple-finder/issues/1)).
 

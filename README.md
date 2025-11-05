@@ -96,142 +96,102 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
       <th>Structure type</th>
       <th>X</th>
       <th>Z</th>
-      <th>Swamp blocks</th>
-      <th>Total swamp blocks</th>
-      <th>% of max <code>4 * (21 * 21 - 1)</code></th>
-      <th>Spawning spaces</th>
+      <th>Witch spawn blocks</th>
+      <th>Total witch spawn blocks</th>
+      <th>% of max <code>(21 * 21 - 1) * 5 * 4</code></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td rowspan="4">7470627834469325444</td>
-      <td>DesertPyramid</td>
+      <td rowspan="4">423630031342907782</td>
+      <td>WitchHut</td>
       <td>-144</td>
       <td>-160</td>
-      <td>0</td>
-      <td rowspan="4">311</td>
-      <td rowspan="4">17.67%</td>
-      <td rowspan="4">1555</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
     </tr>
     <tr>
       <td>DesertPyramid</td>
       <td>-144</td>
-      <td>32</td>
-      <td>172</td>
+      <td>16</td>
+      <td>1580</td>
     </tr>
     <tr>
       <td>DesertPyramid</td>
       <td>0</td>
-      <td>-144</td>
-      <td>139</td>
+      <td>-160</td>
+      <td>660</td>
     </tr>
     <tr>
-      <td>DesertPyramid</td>
+      <td>WitchHut</td>
       <td>16</td>
       <td>0</td>
-      <td>0</td>
+      <td>126</td>
     </tr>
     <tr>
-      <td rowspan="4">-7800515391302042748</td>
-      <td>DesertPyramid</td>
+      <td rowspan="4">3242038509290238342</td>
+      <td>WitchHut</td>
       <td>-144</td>
       <td>-160</td>
-      <td>0</td>
-      <td rowspan="4">234</td>
-      <td rowspan="4">13.29%</td>
-      <td rowspan="4">1170</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
     </tr>
     <tr>
       <td>DesertPyramid</td>
       <td>-144</td>
-      <td>32</td>
-      <td>0</td>
+      <td>16</td>
+      <td>1580</td>
     </tr>
     <tr>
       <td>DesertPyramid</td>
       <td>0</td>
-      <td>-144</td>
-      <td>188</td>
+      <td>-160</td>
+      <td>660</td>
     </tr>
     <tr>
-      <td>DesertPyramid</td>
+      <td>WitchHut</td>
       <td>16</td>
       <td>0</td>
-      <td>46</td>
+      <td>126</td>
     </tr>
     <tr>
-      <td rowspan="2">151</td>
+      <td rowspan="4">-576737481905294970</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">1958</td>
+      <td rowspan="4">22.25%</td>
+    </tr>
+    <tr>
       <td>DesertPyramid</td>
-      <td>-59536</td>
-      <td>36096</td>
-      <td>118</td>
-      <td rowspan="2">176</td>
-      <td rowspan="2">10%</td>
-      <td rowspan="2">706</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
     </tr>
     <tr>
       <td>WitchHut</td>
-      <td>-59392</td>
-      <td>36112</td>
-      <td>58</td>
-    </tr>
-    <tr>
-      <td rowspan="2">84</td>
-      <td>DesertPyramid</td>
-      <td>39792</td>
-      <td>-16832</td>
-      <td>81</td>
-      <td rowspan="2">144</td>
-      <td rowspan="2">8.18%</td>
-      <td rowspan="2">531</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>126</td>
     </tr>
     <tr>
       <td>WitchHut</td>
-      <td>39936</td>
-      <td>-16832</td>
-      <td>63</td>
-    </tr>
-    <tr>
-      <td rowspan="2">541</td>
-      <td>DesertPyramid</td>
-      <td>-32912</td>
-      <td>48208</td>
-      <td>86</td>
-      <td rowspan="2">139</td>
-      <td rowspan="2">7.90%</td>
-      <td rowspan="2">536</td>
-    </tr>
-    <tr>
-      <td>WitchHut</td>
-      <td>-32768</td>
-      <td>48208</td>
-      <td>53</td>
-    </tr>
-    <tr>
-      <td rowspan="2">1262</td>
-      <td>DesertPyramid</td>
-      <td>-56128</td>
-      <td>-11408</td>
-      <td>58</td>
-      <td rowspan="2">121</td>
-      <td rowspan="2">6.87%</td>
-      <td rowspan="2">416</td>
-    </tr>
-    <tr>
-      <td>WitchHut</td>
-      <td>-56112</td>
-      <td>-11264</td>
-      <td>63</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
     </tr>
   </tbody>
 </table>
 
 <p align="center">
-  <img src="assets/quad-desert-pyramid.webp" alt="Desert pyramid next to witch hut" style="width:75%;" onerror="this.style.display='none';">
+  <img src="assets/quad-temple-map.webp" alt="Desert pyramid next to witch hut" style="width:75%;" onerror="this.style.display='none';">
 </p>
 
 <p align="center">
-  <img src="assets/double-temple.webp" alt="Desert pyramid next to witch hut" style="width:75%;" onerror="this.style.display='none';">
+  <img src="assets/quad-temple.webp" alt="Desert pyramid next to witch hut" style="width:75%;" onerror="this.style.display='none';">
 </p>
 
 ### Best found single temple
@@ -303,6 +263,8 @@ Note that this is completely opposite of [shadow seeds](https://seedfinding.com/
 
 > [!TIP]
 > If you input seed 0 into seed field Minecraft would actually generate random one. To generate actual seed 0 world, as Panda explained his video "*[Seeds & Generation #01: Ways to Enter a Seed](https://youtu.be/OLS7CCgNcuY)*" you would need to enter something like `PDFYFCD` as suggested by [seedinfo](https://panda4994.github.io/seedinfo/seedinfo.html#0) tool.
+
+If you want to learn more about seed finding I recommend [fnseedc](https://github.com/SeedFinding/fnseedc) repository.
 
 ## Farming possibilities
 

@@ -1,9 +1,6 @@
 #include <iostream>
 
-/// <summary>
-/// Class from TheBjoel2: https://github.com/TheBjoel2/Slime-Chunk-Finder
-/// </summary>
-
+// Class from TheBjoel2: https://github.com/TheBjoel2/Slime-Chunk-Finder
 class JavaRandom
 {
 private:
