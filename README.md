@@ -76,8 +76,6 @@ Now all I had to do is to replicate logic that game uses to select chunks for te
 
 *Check center of the chunk biome to get temple type* -> *given it's type get it's bounding box size* -> *compute how many blocks are inside swamp*
 
-Thanks to [Bjoel](https://github.com/TheBjoel2) for [C++ Java random implementation](https://github.com/TheBjoel2/Slime-Chunk-Finder/blob/master/JavaRandom.cpp).
-
 And thats basically it! Some optimizations and multithreading later - results are down below.
 
 > [!TIP]
@@ -102,33 +100,6 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td rowspan="4">423630031342907782</td>
-      <td>WitchHut</td>
-      <td>-144</td>
-      <td>-160</td>
-      <td>126</td>
-      <td rowspan="4">2492</td>
-      <td rowspan="4">28.32%</td>
-    </tr>
-    <tr>
-      <td>DesertPyramid</td>
-      <td>-144</td>
-      <td>16</td>
-      <td>1580</td>
-    </tr>
-    <tr>
-      <td>DesertPyramid</td>
-      <td>0</td>
-      <td>-160</td>
-      <td>660</td>
-    </tr>
-    <tr>
-      <td>WitchHut</td>
-      <td>16</td>
-      <td>0</td>
-      <td>126</td>
-    </tr>
     <tr>
       <td rowspan="4">3242038509290238342</td>
       <td>WitchHut</td>
@@ -157,13 +128,13 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
       <td>126</td>
     </tr>
     <tr>
-      <td rowspan="4">-576737481905294970</td>
+      <td rowspan="4">423630031342907782</td>
       <td>WitchHut</td>
       <td>-144</td>
       <td>-160</td>
       <td>126</td>
-      <td rowspan="4">1958</td>
-      <td rowspan="4">22.25%</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
     </tr>
     <tr>
       <td>DesertPyramid</td>
@@ -172,10 +143,550 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
       <td>1580</td>
     </tr>
     <tr>
-      <td>WitchHut</td>
+      <td>DesertPyramid</td>
       <td>0</td>
       <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
       <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">2056770643904541062</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">152903296189837702</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-6093007470444039802</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">6265716445114642822</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-7005265756839366266</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-5133452574688431738</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">3353602466647224710</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-7019026694616796794</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-3813559406086213242</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-4316228514255621754</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-9159567287464644218</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-5101538029921521274</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">6200810366761546118</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-7943307212948917882</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">5398339364371673478</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-4089054259312479866</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-1798128101014523514</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">-198785737156349562</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">3301690519790399878</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
+    </tr>
+    <tr>
+      <td>WitchHut</td>
+      <td>16</td>
+      <td>0</td>
+      <td>126</td>
+    </tr>
+    <tr>
+      <td rowspan="4">1661819710655803782</td>
+      <td>WitchHut</td>
+      <td>-144</td>
+      <td>-160</td>
+      <td>126</td>
+      <td rowspan="4">2492</td>
+      <td rowspan="4">28.32%</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>-144</td>
+      <td>16</td>
+      <td>1580</td>
+    </tr>
+    <tr>
+      <td>DesertPyramid</td>
+      <td>0</td>
+      <td>-160</td>
+      <td>660</td>
     </tr>
     <tr>
       <td>WitchHut</td>

@@ -108,7 +108,7 @@ int run_quad_temple_finder(uint64_t startIndex = 0)
                             {
                                 const char *typeName = (templeTypes[j] == 1 ? "DesertPyramid" : templeTypes[j] == 2 ? "JungleTemple"
                                                                                                                     : "WitchHut");
-                                printf("\t%s, %d: '/tp @p %d 100 %d'\n", typeName, countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]), pos[j].x, pos[j].z);
+                                printf("\t%s, %d: '/tp @p %d ~ %d'\n", typeName, countSwampSpawnBlocks(&g, pos[j].x, pos[j].z, templeTypes[j]), pos[j].x, pos[j].z);
                             }
 
                             if (log)

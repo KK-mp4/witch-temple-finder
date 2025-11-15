@@ -13,14 +13,6 @@ extern "C"
 #include "quadbase.h"
 }
 
-// Computes the per-region RNG seed as Minecraft does for structures
-static inline int64_t makeStructureSeed(int64_t worldSeed, int regionX, int regionZ, int salt)
-{
-    const int64_t A = 341873128712LL;
-    const int64_t B = 132897987541LL;
-    return (int64_t)regionX * A + (int64_t)regionZ * B + (int64_t)worldSeed + (int64_t)salt;
-}
-
 // Returns temple type if biome is valid and temple type is selected:
 // 1 -> DesertPyramid
 // 2 -> JungleTemple

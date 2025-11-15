@@ -12,3 +12,4 @@ logs
 # Misc
 drafts/*
 !drafts/.gitkeep
+py_module

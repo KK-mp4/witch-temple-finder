@@ -1,40 +1,25 @@
 #include <finder_utils.hpp>
 
-extern "C"
-{
-#include "java_random.h"
-}
-
 // Extra config
-constexpr int DISTANCE = 32;
-constexpr int MIN_DISTANCE = 8;
-constexpr int STRUCTURE_SALT = 14357617;
-constexpr int64_t AREA_RADIUS_BLOCKS = 65536; // from 0, 0 in blocks
+constexpr int AREA_RADIUS_BLOCKS = 65536;
+constexpr int AREA_RADIUS_REGIONS = AREA_RADIUS_BLOCKS / (CHUNK_SIZE * 32);
+constexpr unsigned int PRINT_PROGRESS_EVERY_SEEDS = 128;
 
 int run_seed_finder(uint64_t startSeed = 0)
 {
     // Main thread spawns workers and then joins (but workers run forever).
     const unsigned int numThreads = std::max(1u, std::thread::hardware_concurrency());
-    // const unsigned int numThreads = 4;
 
     std::ofstream log("logs/seed_finder.log", std::ios::app);
     if (!log)
         fprintf(stderr, "Failed to open log file 'logs/seed_finder.log'\n");
     else
-        log << "\n\nseed,\tstructure_type,\tx,\tz,\tswamp_spawn_blocks\n";
-
-    // Precompute chunk ranges
-    const int chunkRadius = (int)((AREA_RADIUS_BLOCKS + CHUNK_SIZE - 1) / CHUNK_SIZE);
-    const int chunkMin = -chunkRadius;
-    const int chunkMax = chunkRadius;
+        log << "\n\nseed,\tstructure_type,\tworld_x,\tworld_z,\tswamp_spawn_blocks\n";
 
     // Shared best result: protected by mutex
-    uint64_t bestSeed = 0;
-    int bestX = 0, bestZ = 0;
-    int bestArea = -1;
+    int64_t bestSeed = 0;
+    int bestWorldX = 0, bestWorldZ = 0, mostSwampSpawnBlocks = -1;
     int bestType = 0; // 1 desert, 2 jungle, 3 witch
-
-    const uint64_t printProgressEvery = 128; // Prints progress every N seeds
 
     // Atomic seed provider and counters
     std::atomic<uint64_t> nextSeed(startSeed);
@@ -48,76 +33,58 @@ int run_seed_finder(uint64_t startSeed = 0)
         Generator g;
         setupGenerator(&g, MC_VERSION, 0);
 
-        JavaRandom javaRandom;
+        int styp = Desert_Pyramid;
+        int templeType = 0, swampSpawnBlocks = 0;
+        Pos pos;
 
-        for (;;)
+        while (true)
         {
             uint64_t seed = nextSeed.fetch_add(1, std::memory_order_relaxed);
 
-            // Apply seed to this thread's generator instance
+            if (seed == UINT64_MAX)
+            {
+                printf("Worker %u done. Reached max seed.\n", workerId);
+                break;
+            }
+
             applySeed(&g, DIM_OVERWORLD, (int64_t)seed);
 
-            for (int chunkX = chunkMin; chunkX <= chunkMax; ++chunkX)
+            for (int regionX = -AREA_RADIUS_REGIONS; regionX <= AREA_RADIUS_REGIONS; ++regionX)
             {
-                for (int chunkZ = chunkMin; chunkZ <= chunkMax; ++chunkZ)
+                for (int regionZ = -AREA_RADIUS_REGIONS; regionZ <= AREA_RADIUS_REGIONS; ++regionZ)
                 {
-                    int i = chunkX;
-                    int j = chunkZ;
-                    int cx = chunkX;
-                    int cz = chunkZ;
-                    if (cx < 0)
-                        cx -= DISTANCE - 1;
-                    if (cz < 0)
-                        cz -= DISTANCE - 1;
-                    int regionX = cx / DISTANCE;
-                    int regionZ = cz / DISTANCE;
+                    getStructurePos(styp, MC_VERSION, seed, regionX, regionZ, &pos);
 
-                    int64_t regionSeed = makeStructureSeed((int64_t)seed, regionX, regionZ, STRUCTURE_SALT);
-                    javaRandom.setSeed(regionSeed);
+                    templeType = isViableTemplePos(&g, pos.x, pos.z);
 
-                    int k = regionX * DISTANCE;
-                    int l = regionZ * DISTANCE;
+                    if (templeType == 0)
+                        continue;
 
-                    int range = DISTANCE - MIN_DISTANCE;
-                    int offsetX = javaRandom.nextInt(range);
-                    int offsetZ = javaRandom.nextInt(range);
+                    swampSpawnBlocks = countSwampSpawnBlocks(&g, pos.x, pos.z, templeType);
 
-                    if (i == (k + offsetX) && j == (l + offsetZ))
+                    if (swampSpawnBlocks <= 0)
+                        continue;
+
                     {
-                        int startX = i * CHUNK_SIZE;
-                        int startZ = j * CHUNK_SIZE;
+                        std::lock_guard<std::mutex> lock(bestMutex);
 
-                        int templeType = isViableTemplePos(&g, startX, startZ);
-
-                        if (!(templeType))
-                            continue;
-
-                        int swampSpawnBlocks = countSwampSpawnBlocks(&g, startX, startZ, templeType);
-
-                        if (swampSpawnBlocks <= 0)
-                            continue;
-
+                        if (swampSpawnBlocks >= mostSwampSpawnBlocks)
                         {
-                            std::lock_guard<std::mutex> lock(bestMutex);
-                            if (swampSpawnBlocks >= bestArea)
+                            mostSwampSpawnBlocks = swampSpawnBlocks;
+                            bestSeed = seed;
+                            bestWorldX = pos.x;
+                            bestWorldZ = pos.z;
+                            bestType = templeType;
+
+                            const char *templeTypeName = (templeType == 1 ? "DesertPyramid" : templeType == 2 ? "JungleTemple"
+                                                                                                              : "WitchHut");
+                            printf("[NEW BEST] seed=%llu type=%s swamp-spawn-blocks=%d -> /tp @p %d ~ %d\n", (int64_t)bestSeed, templeTypeName, mostSwampSpawnBlocks, pos.x, pos.z);
+                            fflush(stdout);
+
+                            if (log)
                             {
-                                bestArea = swampSpawnBlocks;
-                                bestSeed = seed;
-                                bestX = startX;
-                                bestZ = startZ;
-                                bestType = templeType;
-
-                                const char *typeName = (bestType == 1 ? "DesertPyramid" : bestType == 2 ? "JungleTemple"
-                                                                                                        : "WitchHut");
-                                printf("[NEW BEST] seed=%llu type=%s start=(%d,%d) swamp-spawn-blocks=%d\n",
-                                       (unsigned long long)bestSeed, typeName, bestX, bestZ, bestArea);
-                                fflush(stdout);
-
-                                if (log)
-                                {
-                                    log << bestSeed << ",\t" << typeName << ",\t" << bestX << ",\t" << bestZ << ",\t" << bestArea << "\n";
-                                    log.flush();
-                                }
+                                log << bestSeed << ",\t" << templeTypeName << ",\t" << pos.x << ",\t" << pos.z << ",\t" << mostSwampSpawnBlocks << "\n";
+                                log.flush();
                             }
                         }
                     }
@@ -125,12 +92,12 @@ int run_seed_finder(uint64_t startSeed = 0)
             }
 
             uint64_t done = processedSeeds.fetch_add(1, std::memory_order_relaxed) + 1;
-            if (done % printProgressEvery == 0)
+            if (done % PRINT_PROGRESS_EVERY_SEEDS == 0)
             {
                 std::lock_guard<std::mutex> lock(bestMutex);
                 printf("[PROGRESS] worker=%u processed-seeds=%llu best-so-far: seed=%llu swamp-spawn-blocks=%d at (%d,%d)\n",
-                       workerId, (unsigned long long)done,
-                       (unsigned long long)bestSeed, bestArea, bestX, bestZ);
+                       workerId, (uint64_t)done,
+                       (int64_t)bestSeed, mostSwampSpawnBlocks, bestWorldX, bestWorldZ);
                 fflush(stdout);
             }
         }
@@ -147,5 +114,6 @@ int run_seed_finder(uint64_t startSeed = 0)
     for (auto &th : threads)
         th.join();
 
+    printf("Done.\n");
     return 0;
 }
