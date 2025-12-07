@@ -66,6 +66,20 @@ static const PieceSize JUNGLE_TEMPLE = {12, 10, 15};
 static const PieceSize WITCH_HUT = {7, 5, 9};
 ```
 
+And it was fixed in [Minecraft JE 1.6.3](https://minecraft.wiki/w/Java_Edition_1.6.3), a check was added that it is actually a witch hut.
+
+```java
+// Pseudocode
+public boolean isWitchHut(BlockPos pos) {
+    StructureStart structureStart = this.findStructure(pos);
+    if (structureStart == null || !(structureStart instanceof Start) || structureStart.pieces.isEmpty()) {
+        return false;
+    }
+    StructurePiece structurePiece = structureStart.pieces.get(0);
+    return structurePiece instanceof TemplePieces.WitchHut;
+}
+```
+
 And while in [Minecraft JE 1.8.1](https://minecraft.wiki/w/Java_Edition_1.8.1) bounding box size of witch huts was actually increased by two blocks `{7, 7, 9}` allowing to build a farm with 3 floors, this is still not even close to jungle and desert pyramid sizes. So this is when my quest started, a quest to find seeds where instead of quad witch huts I search for desert pyramids that are mostly inside swamps.
 
 ## A quest to find seeds
@@ -79,7 +93,7 @@ Now all I had to do is to replicate logic that game uses to select chunks for te
 And thats basically it! Some optimizations and multithreading later - results are down below.
 
 > [!TIP]
-> For previewing old Minecraft seeds I recommend using [Amidst](https://github.com/toolbox4minecraft/amidst), [Cubiomes Viewer](https://github.com/Cubitect/cubiomes-viewer) or [Minemap](https://github.com/hube12/Minemap).
+> For previewing old Minecraft seeds I recommend using [Amidst](https://github.com/toolbox4minecraft/amidst), [Cubiomes Viewer](https://github.com/Cubitect/cubiomes-viewer) or [Minemap](https://github.com/hube12/Minemap). And for even older versions you can use [monolith-renderer](https://github.com/kahomayo/monolith-renderer) or [amidst-infdev](https://github.com/kahomayo/amidst-infdev).
 
 ## Results
 
@@ -710,9 +724,9 @@ Those seeds should work in every Minecraft JE version in range 1.4.2 - 1.6.2. In
 | Seed | Structure type | X | Z | Swamp blocks | % of max `21 * 21 - 1` | Spawning spaces
 |-|-|-|-|-|-|-
 | 28257 | DesertPyramid | 22784 | 16752 | 401 | 91.14% | 2005
+| 1306145184061456995 | DesertPyramid | 15197824 | 18989808 | 399 | 90.68% | 1995
 | 42162 | DesertPyramid | 49264 | -21248 | 393 | 89.32% | 1965
 | 38711 | DesertPyramid | -29984 | -16752 | 381 | 86.59% | 1905
-| 1306145184061456995 | DesertPyramid | -25976656 | -29555600 | 378 | 85.91% | 1890
 | 38513 | DesertPyramid | 46144 | 21616 | 375 | 85.23% | 1875
 
 <p align="center">
@@ -757,6 +771,15 @@ The redstone block on this image shows location that was actually checked to det
 <p align="center">
   <img src="assets/worst-witch-hut.webp" alt="Witch hut fully in river" style="width:75%;" onerror="this.style.display='none';">
 </p>
+
+### Doubled witch huts?
+
+During research for this project I came across multiple posts with witch hut being generated on top of another witch hut:
+
+- [Apparently Witch Huts can spawn on top of each other?](https://imgur.com/apparently-witch-huts-can-spawn-on-top-of-each-other-2O8fr)
+- [Found my first witch hut! Wait, what?](https://www.reddit.com/r/Minecraft/comments/1f6lip/found_my_first_witch_hut_wait_what/)
+
+Since those two posts had provided the seeds `-753185017950826243` and `-2274802501570798098` and tried to replicate that bud. I tried earliest version when witch huts were added as well as current latest version when posts were made and no success. Then when I tried to simply repopulate already existing witch huts with MCEdit and I managed to replicate those structures 1:1. So what is that, a rare bug where game populates same chunk twice? Or fake posts? As of right now I don't have definitive answer. However what is clear is that second population would move the witch hut bounding box up, only making a possible farm slower. You would not get x2 spawning spaces from it.
 
 ### Sister seeds
 

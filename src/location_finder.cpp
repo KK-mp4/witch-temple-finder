@@ -23,89 +23,131 @@ int run_location_finder(uint64_t seed = 0)
     StructureConfig sconf;
     getStructureConfig(styp, MC_VERSION, &sconf);
 
-    Generator g;
-    setupGenerator(&g, MC_VERSION, 0);
-    applySeed(&g, DIM_OVERWORLD, seed);
+    const uint64_t totalRegions = (2ULL * AREA_RADIUS_REGIONS + 1ULL) * (2ULL * AREA_RADIUS_REGIONS + 1ULL);
 
-    uint64_t totalRegions = (2ULL * AREA_RADIUS_REGIONS + 1) * (2ULL * AREA_RADIUS_REGIONS + 1); // Total number of regions to process
-    uint64_t scannedRegions = 0;
+    const unsigned int numThreads = std::max(1u, std::thread::hardware_concurrency());
 
-    int regionX = 0, regionZ = 0, templeType = 0, swampSpawnBlocks = 0, mostSwampSpawnBlocks = 0;
+    std::atomic<int> mostSwampSpawnBlocks{0};
+    std::mutex logMutex;   // protects file writes and printf for NEW BEST
+    std::mutex printMutex; // protects periodic progress printf
 
-    Pos pos;
-    getStructurePos(styp, MC_VERSION, seed, regionX, regionZ, &pos);
-
-    templeType = isViableTemplePos(&g, pos.x, pos.z);
-
-    if (templeType)
+    // worker lambda: each thread executes the same spiral; only handles regions where (index % numThreads) == tid
+    auto worker = [&](unsigned int tid)
     {
-        swampSpawnBlocks = countSwampSpawnBlocks(&g, pos.x, pos.z, templeType);
+        // thread-local generator/state
+        Generator g;
+        setupGenerator(&g, MC_VERSION, 0);
+        applySeed(&g, DIM_OVERWORLD, seed);
 
-        if (swampSpawnBlocks > 0 && swampSpawnBlocks >= mostSwampSpawnBlocks)
+        uint64_t scannedRegions = 0;
+
+        int regionX = 0, regionZ = 0;
+        Pos pos;
+
+        // process origin (region 0)
+        getStructurePos(styp, MC_VERSION, seed, regionX, regionZ, &pos);
+
+        if ((scannedRegions % numThreads) == tid)
         {
-            mostSwampSpawnBlocks = swampSpawnBlocks;
-
-            const char *templeTypeName = (templeType == 1 ? "DesertPyramid" : templeType == 2 ? "JungleTemple"
-                                                                                              : "WitchHut");
-            printf("[NEW BEST] type=%s swamp-spawn-blocks=%d -> /tp @p %d ~ %d\n", templeTypeName, mostSwampSpawnBlocks, pos.x, pos.z);
-
-            if (log)
+            int templeType = isViableTemplePos(&g, pos.x, pos.z);
+            if (templeType)
             {
-                log << templeTypeName << ",\t" << pos.x << ",\t" << pos.z << ",\t" << mostSwampSpawnBlocks << "\n";
-                log.flush();
-            }
-        }
-    }
-
-    scannedRegions++;
-
-    int stepLen = 1;
-    while (scannedRegions < totalRegions)
-    {
-        for (int direction = 0; direction < 4 && scannedRegions < totalRegions; ++direction)
-        {
-            for (int step = 0; step < stepLen && scannedRegions < totalRegions; ++step, ++scannedRegions)
-            {
-                if (scannedRegions % PRINT_PROGRESS_EVERY_REGIONS == 0)
-                    printf("[PROGRESS] scanned-regions=%llu total-regions=%llu best-so-far: swamp-spawn-blocks=%d\n",
-                           scannedRegions, totalRegions, mostSwampSpawnBlocks);
-
-                regionX += dx[direction];
-                regionZ += dy[direction];
-
-                getStructurePos(styp, MC_VERSION, seed, regionX, regionZ, &pos);
-
-                templeType = isViableTemplePos(&g, pos.x, pos.z);
-
-                if (templeType == 0)
-                    continue;
-
-                swampSpawnBlocks = countSwampSpawnBlocks(&g, pos.x, pos.z, templeType);
-
-                if (swampSpawnBlocks <= 0)
-                    continue;
-
-                if (swampSpawnBlocks >= mostSwampSpawnBlocks)
+                int swampSpawnBlocks = countSwampSpawnBlocks(&g, pos.x, pos.z, templeType);
+                if (swampSpawnBlocks > 0)
                 {
-                    mostSwampSpawnBlocks = swampSpawnBlocks;
-
-                    const char *templeTypeName = (templeType == 1 ? "DesertPyramid" : templeType == 2 ? "JungleTemple"
-                                                                                                      : "WitchHut");
-                    printf("[NEW BEST] type=%s swamp-spawn-blocks=%d -> /tp @p %d ~ %d\n", templeTypeName, mostSwampSpawnBlocks, pos.x, pos.z);
-
-                    if (log)
+                    int prev = mostSwampSpawnBlocks.load(std::memory_order_relaxed);
+                    if (swampSpawnBlocks >= prev)
                     {
-                        log << templeTypeName << ",\t" << pos.x << ",\t" << pos.z << ",\t" << mostSwampSpawnBlocks << "\n";
-                        log.flush();
+                        // log/update under mutex to avoid interleaving file writes & prints
+                        std::lock_guard<std::mutex> lk(logMutex);
+                        prev = mostSwampSpawnBlocks.load();
+                        if (swampSpawnBlocks >= prev)
+                        {
+                            mostSwampSpawnBlocks.store(swampSpawnBlocks);
+                            const char *templeTypeName = (templeType == 1 ? "DesertPyramid" : templeType == 2 ? "JungleTemple"
+                                                                                                              : "WitchHut");
+                            printf("[NEW BEST] type=%s swamp-spawn-blocks=%d -> /tp @p %d ~ %d\n",
+                                   templeTypeName, swampSpawnBlocks, pos.x, pos.z);
+                            if (log)
+                            {
+                                log << templeTypeName << ",\t" << pos.x << ",\t" << pos.z << ",\t" << swampSpawnBlocks << "\n";
+                                log.flush();
+                            }
+                        }
                     }
                 }
             }
-            // Increase step length after completing up or down movement (i.e. after every 2 directions)
-            if (direction % 2 == 1)
-                ++stepLen;
         }
-    }
 
-    printf("Done.\n");
+        ++scannedRegions;
+
+        int stepLen = 1;
+        while (scannedRegions < totalRegions)
+        {
+            for (int direction = 0; direction < 4 && scannedRegions < totalRegions; ++direction)
+            {
+                for (int step = 0; step < stepLen && scannedRegions < totalRegions; ++step, ++scannedRegions)
+                {
+                    // only thread 0 prints progress (to avoid interleaving)
+                    if (tid == 0 && (scannedRegions % PRINT_PROGRESS_EVERY_REGIONS == 0))
+                    {
+                        std::lock_guard<std::mutex> lk(printMutex);
+                        printf("[PROGRESS] scanned-regions=%llu total-regions=%llu best-so-far: swamp-spawn-blocks=%d\n",
+                               scannedRegions, totalRegions, mostSwampSpawnBlocks.load());
+                    }
+
+                    regionX += dx[direction];
+                    regionZ += dy[direction];
+
+                    // modulo partitioning: only the thread that owns this index will do the heavy work
+                    if ((scannedRegions % numThreads) != tid)
+                        continue;
+
+                    getStructurePos(styp, MC_VERSION, seed, regionX, regionZ, &pos);
+
+                    int templeType = isViableTemplePos(&g, pos.x, pos.z);
+                    if (templeType == 0)
+                        continue;
+
+                    int swampSpawnBlocks = countSwampSpawnBlocks(&g, pos.x, pos.z, templeType);
+                    if (swampSpawnBlocks <= 0)
+                        continue;
+
+                    int prev = mostSwampSpawnBlocks.load(std::memory_order_relaxed);
+                    if (swampSpawnBlocks >= prev)
+                    {
+                        std::lock_guard<std::mutex> lk(logMutex);
+                        prev = mostSwampSpawnBlocks.load();
+                        if (swampSpawnBlocks >= prev)
+                        {
+                            mostSwampSpawnBlocks.store(swampSpawnBlocks);
+                            const char *templeTypeName = (templeType == 1 ? "DesertPyramid" : templeType == 2 ? "JungleTemple"
+                                                                                                              : "WitchHut");
+                            printf("[NEW BEST] type=%s swamp-spawn-blocks=%d -> /tp @p %d ~ %d\n",
+                                   templeTypeName, swampSpawnBlocks, pos.x, pos.z);
+                            if (log)
+                            {
+                                log << templeTypeName << ",\t" << pos.x << ",\t" << pos.z << ",\t" << swampSpawnBlocks << "\n";
+                                log.flush();
+                            }
+                        }
+                    }
+                }
+                if (direction % 2 == 1)
+                    ++stepLen;
+            }
+        }
+    };
+
+    // spawn threads
+    std::vector<std::thread> threads;
+    threads.reserve(numThreads);
+    for (unsigned int i = 0; i < numThreads; ++i)
+        threads.emplace_back(worker, i);
+
+    for (auto &t : threads)
+        t.join();
+
+    printf("Done. best-so-far swamp-spawn-blocks=%d\n", mostSwampSpawnBlocks.load());
     return 0;
 }
